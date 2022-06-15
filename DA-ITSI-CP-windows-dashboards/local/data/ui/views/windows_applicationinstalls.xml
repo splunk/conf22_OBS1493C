@@ -1,0 +1,161 @@
+<form stylesheet="custom.css" version="1.1">
+  <label>Application Installs - Windows</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="EventHost" searchWhenChanged="true">
+      <label>Event Host</label>
+      <choice value="*">All</choice>
+      <search>
+        <query>| inputlookup windows_event_system | dedup Host | sort Host</query>
+      </search>
+      <fieldForLabel>Host</fieldForLabel>
+      <fieldForValue>Host</fieldForValue>
+      <default>*</default>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Total Installs By Host</title>
+        <search>
+          <query>eventtype="wineventlog_common" (SourceName=MsiInstaller OR Name='MsiInstaller') EventCode=11707 host="$EventHost$"| stats sparkline as "Trend", count by host | sort -count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Total Installs By Application</title>
+        <search>
+          <query>eventtype="wineventlog_common" (SourceName=MsiInstaller OR Name='MsiInstaller') EventCode=11707  host="$EventHost$" | rex "(?s)Product: (?&lt;product_name&gt;.*) --" | stats sparkline as "Trend", count by product_name | sort -count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Installs Over Time By Host</title>
+        <search>
+          <query>eventtype="wineventlog_common" (SourceName=MsiInstaller OR Name='MsiInstaller') EventCode=11707  host="$EventHost$" | timechart count by host useother=f</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Installs Over Time By Application</title>
+        <search>
+          <query>eventtype="wineventlog_common" (SourceName=MsiInstaller OR Name='MsiInstaller') EventCode=11707  host="$EventHost$" | rex "(?s)Product: (?&lt;product_name&gt;.*) --" | timechart count by product_name useother=f</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Installation Details By Host</title>
+        <search>
+          <query>eventtype="wineventlog_common" (SourceName=MsiInstaller OR Name='MsiInstaller') EventCode=11707  host="$EventHost$" | rex "(?s)Product: (?&lt;product_name&gt;.*) --" | stats count, latest(_time) AS ltime by host, product_name | convert ctime(ltime) | eval comb=product_name." (Last Event Time = ".ltime." )" | stats values(comb) AS Installed_Products, sum(count) AS Total_Events by host | sort -Total_Events</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <h3>More reports</h3>
+        <ul class="windows-footer">
+          <li>
+            <a href="search?s=Count%20of%20total%20installs%20per%20user%20for%20the%20last%207%20days">Count of total installs per user for the last 7 days</a>
+          </li>
+          <li>
+            <a href="search?s=Count%20of%20total%20installs%20per%20user%20each%20day%20for%20the%20last%207%20days">Count of total installs per user each day for the last 7 days</a>
+          </li>
+          <li>
+            <a href="search?s=Count%20of%20total%20installs%20per%20Application%20each%20day%20for%20the%20last%207%20days">Count of total installs per Application each day for the last 7 days</a>
+          </li>
+          <li>
+            <a href="search?s=List%20of%20Applications%2C%20Time%20of%20install%2C%20User%20and%20Host%20for%20the%20last%207%20days">List of Applications, Time of install, User and Host for the last 7 days</a>
+          </li>
+        </ul>
+      </html>
+    </panel>
+  </row>
+</form>
